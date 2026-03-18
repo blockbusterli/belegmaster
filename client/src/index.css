@@ -1,0 +1,184 @@
+/* ── Google Fonts: Inter + Inter Tight (BB CI/CD) ──────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Inter+Tight:wght@400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* ── Blockbusterli CI/CD Palette ── */
+    /* BB Blau-Schwarz #001F26 – main dark bg */
+    /* BB Petrol       #004C5D – surfaces */
+    /* BB Gelb         #F2C831 – primary accent */
+    /* BB Cyan         #00B6DF – secondary accent */
+    /* BB Weiss        #FFFFFF – text */
+
+    --bb-black:    #001F26;
+    --bb-petrol:   #004C5D;
+    --bb-yellow:   #F2C831;
+    --bb-cyan:     #00B6DF;
+    --bb-white:    #FFFFFF;
+    --bb-petrol-light: #006478;
+
+    /* Tailwind/shadcn HSL vars – dark mode by default (BB is a dark brand) */
+    --background:        198 100% 8%;    /* #001F26 */
+    --foreground:        0 0% 97%;       /* near-white */
+    --card:              195 100% 18%;   /* #004C5D */
+    --card-foreground:   0 0% 97%;
+    --popover:           198 100% 8%;
+    --popover-foreground:0 0% 97%;
+    --primary:           47 88% 57%;     /* #F2C831 BB Gelb */
+    --primary-foreground:198 100% 8%;
+    --secondary:         195 100% 18%;
+    --secondary-foreground:0 0% 85%;
+    --muted:             195 60% 15%;
+    --muted-foreground:  195 20% 55%;
+    --accent:            195 100% 44%;   /* #00B6DF BB Cyan */
+    --accent-foreground: 198 100% 8%;
+    --destructive:       0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --border:            195 60% 22%;
+    --input:             195 60% 22%;
+    --ring:              47 88% 57%;     /* BB Gelb ring */
+    --radius:            0.75rem;
+
+    /* Status */
+    --success:           142 71% 45%;
+    --success-bg:        142 40% 10%;
+    --warning:           47 88% 57%;
+    --warning-bg:        47 60% 10%;
+    --error:             0 70% 55%;
+    --error-bg:          0 50% 10%;
+    --neutral:           195 20% 55%;
+    --neutral-bg:        195 60% 15%;
+  }
+
+  /* Light mode override */
+  .light {
+    --background:         0 0% 97%;
+    --foreground:         198 100% 8%;
+    --card:               0 0% 100%;
+    --card-foreground:    198 100% 8%;
+    --popover:            0 0% 100%;
+    --popover-foreground: 198 100% 8%;
+    --primary:            47 88% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary:          195 30% 93%;
+    --secondary-foreground:198 100% 8%;
+    --muted:              195 20% 93%;
+    --muted-foreground:   195 40% 40%;
+    --accent:             195 100% 44%;
+    --accent-foreground:  0 0% 100%;
+    --border:             195 20% 85%;
+    --input:              195 20% 85%;
+    --ring:               47 88% 50%;
+
+    --success:           142 71% 38%;
+    --success-bg:        142 40% 94%;
+    --warning:           47 88% 45%;
+    --warning-bg:        47 80% 94%;
+    --error:             0 70% 50%;
+    --error-bg:          0 50% 94%;
+    --neutral:           195 20% 50%;
+    --neutral-bg:        195 20% 93%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  html { font-family: 'Inter', 'Inter Tight', system-ui, sans-serif; }
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv01", "cv02", "cv03";
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Inter Tight', 'Inter', system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* ── BB Gradient ────────────────────────────────────────────────────────────── */
+.bb-gradient {
+  background: linear-gradient(135deg, #001F26 0%, #004C5D 50%, #003845 100%);
+}
+.bb-gradient-yellow {
+  background: linear-gradient(135deg, #F2C831 0%, #E8B820 100%);
+}
+.bb-glow-yellow {
+  box-shadow: 0 0 30px rgba(242, 200, 49, 0.25), 0 0 60px rgba(242, 200, 49, 0.08);
+}
+.bb-glow-cyan {
+  box-shadow: 0 0 20px rgba(0, 182, 223, 0.2);
+}
+.bb-card-glass {
+  background: rgba(0, 76, 93, 0.4);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 182, 223, 0.15);
+}
+.bb-border-glow {
+  border: 1px solid rgba(242, 200, 49, 0.3);
+  box-shadow: inset 0 1px 0 rgba(242, 200, 49, 0.1);
+}
+
+/* ── Status badges ──────────────────────────────────────────────────────────── */
+.status-matched     { background: rgba(20, 180, 100, 0.15); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.2); }
+.status-no_invoice  { background: rgba(0, 76, 93, 0.4);    color: #7dd3e8; border: 1px solid rgba(0, 182, 223, 0.2); }
+.status-needs_manual{ background: rgba(242, 200, 49, 0.12); color: #F2C831; border: 1px solid rgba(242, 200, 49, 0.25); }
+.status-pending     { background: rgba(0, 76, 93, 0.4);    color: #7dd3e8; border: 1px solid rgba(0, 182, 223, 0.15); }
+.status-waiting_2fa { background: rgba(242, 200, 49, 0.12); color: #F2C831; border: 1px solid rgba(242, 200, 49, 0.25); }
+
+/* ── Upload dropzone ────────────────────────────────────────────────────────── */
+.dropzone {
+  border: 2px dashed rgba(0, 182, 223, 0.3);
+  border-radius: 1rem;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  background: rgba(0, 31, 38, 0.6);
+}
+.dropzone:hover, .dropzone.active {
+  border-color: #F2C831;
+  background: rgba(242, 200, 49, 0.05);
+  box-shadow: 0 0 40px rgba(242, 200, 49, 0.1);
+}
+
+/* ── Progress bar ───────────────────────────────────────────────────────────── */
+.bb-progress {
+  background: rgba(0, 182, 223, 0.12);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.bb-progress-bar {
+  background: linear-gradient(90deg, #F2C831, #00B6DF);
+  border-radius: 999px;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Scrollbar ──────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0, 182, 223, 0.25); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0, 182, 223, 0.45); }
+
+/* ── Animations ─────────────────────────────────────────────────────────────── */
+@keyframes bb-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+@keyframes bb-spin-glow {
+  0% { box-shadow: 0 0 10px rgba(242, 200, 49, 0.4); }
+  50% { box-shadow: 0 0 25px rgba(242, 200, 49, 0.7), 0 0 50px rgba(0, 182, 223, 0.2); }
+  100% { box-shadow: 0 0 10px rgba(242, 200, 49, 0.4); }
+}
+.bb-pulse { animation: bb-pulse 2s ease-in-out infinite; }
+.bb-glow-pulse { animation: bb-spin-glow 2s ease-in-out infinite; }
+
+/* ── Number Ticker (for stats) ──────────────────────────────────────────────── */
+.stat-number {
+  font-family: 'Inter Tight', sans-serif;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
