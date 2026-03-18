@@ -53,9 +53,6 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 
-# Copy attached assets (logo etc.)
-COPY --from=builder /app/client/attached_assets ./client/attached_assets
-
 # Expose port
 EXPOSE 5000
 

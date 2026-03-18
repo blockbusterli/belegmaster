@@ -6,7 +6,7 @@ import {
   CheckCircle2, AlertCircle, Clock, ExternalLink, Receipt,
   ChevronDown, ChevronUp, FileText, Zap, HelpCircle,
   ThumbsUp, ThumbsDown, ArrowRightLeft, TrendingUp, Apple, ChevronRight,
-  Mail, Monitor,
+  Mail, Monitor, Download,
 } from "lucide-react";
 import { useState } from "react";
 import { apiRequest } from "@/lib/queryClient";
@@ -138,6 +138,18 @@ export default function ReconciliationPage() {
           {matched.length > 0 && <Badge label={`${matched.length} OK`} color="#4ade80" />}
           {fuzzy.length > 0 && <Badge label={`${fuzzy.length} Vorschlag`} color="#F2C831" />}
           {noInvoice.length > 0 && <Badge label={`${noInvoice.length} Offen`} color="rgba(0,182,223,0.7)" />}
+          {matched.length > 0 && (
+            <a
+              href={`/api/reconciliations/${recon.id}/download-zip`}
+              download
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:scale-105 hover:opacity-90"
+              style={{ background: "#F2C831", color: "#001F26" }}
+              title={`${matched.length} abgeglichene Belege als ZIP herunterladen`}
+            >
+              <Download size={13} />
+              ZIP ({matched.length} Belege)
+            </a>
+          )}
         </div>
       </div>
 

@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import multer from "multer";
 import fs from "fs";
 import path from "path";
+import archiver from "archiver";
 import { storage } from "./storage";
 import { InsertPlatform, InsertStatement, Transaction, PlatformResult, MatchRule } from "@shared/schema";
 import { performAutoLogin, verify2FA } from "./auto-login";
@@ -684,6 +685,108 @@ export async function registerRoutes(httpServer: Server, app: Express) {
     const { sessionId } = req.body;
     if (sessionId) closeDesktopSession(sessionId);
     res.json({ success: true });
+  });
+
+  // ── ZIP Download: alle abgeglichenen Belege als ZIP ──────────────────────────
+  app.get("/api/reconciliations/:id/download-zip", async (req, res) => {
+    const r = await storage.getReconciliation(parseInt(req.params.id));
+    if (!r) return res.status(404).json({ error: "Abgleich nicht gefunden" });
+
+    const statement = await storage.getStatement(r.statementId);
+    const platformResults = r.platformResults as PlatformResult[];
+    const matched = platformResults.filter(p =>
+      p.status === "matched" && p.matchedTransaction
+    );
+
+    const month = statement?.month ?? new Date().toISOString().slice(0, 7);
+    const zipName = `Belege_${month}.zip`;
+
+    res.setHeader("Content-Type", "application/zip");
+    res.setHeader("Content-Disposition", `attachment; filename="${zipName}"`);
+
+    const archive = archiver("zip", { zlib: { level: 9 } });
+    archive.pipe(res);
+
+    // Create a human-readable summary CSV
+    const csvLines = [
+      "Plattform,Datum,Beschreibung,Betrag,Währung,Status",
+      ...matched.map(p => {
+        const tx = p.matchedTransaction!;
+        return [
+          `"${p.platformName}"`,
+          `"${tx.date}"`,
+          `"${tx.description.replace(/"/g, '""')}"`,
+          tx.amount.toFixed(2),
+          tx.currency,
+          "Abgeglichen"
+        ].join(",");
+      }),
+    ];
+    archive.append(csvLines.join("\n"), { name: "Abgleich_Zusammenfassung.csv" });
+
+    // Create a detailed HTML receipt for each matched platform
+    for (const p of matched) {
+      const tx = p.matchedTransaction!;
+      const html = `<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Beleg – ${p.platformName}</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; color: #001F26; }
+    h1 { font-size: 22px; margin-bottom: 4px; }
+    .label { color: #666; font-size: 12px; text-transform: uppercase; margin-top: 16px; }
+    .value { font-size: 16px; font-weight: bold; margin-top: 2px; }
+    .amount { font-size: 28px; font-weight: bold; color: #004C5D; margin: 20px 0; }
+    .footer { margin-top: 40px; font-size: 11px; color: #999; border-top: 1px solid #eee; padding-top: 12px; }
+    .badge { display: inline-block; background: #e6f9ef; color: #15803d; border-radius: 6px; padding: 3px 10px; font-size: 12px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Beleg</h1>
+  <span class="badge">✓ Abgeglichen</span>
+
+  <div class="label">Plattform</div>
+  <div class="value">${p.platformName}</div>
+
+  <div class="label">Datum</div>
+  <div class="value">${tx.date}</div>
+
+  <div class="label">Beschreibung (Kreditkarte)</div>
+  <div class="value">${tx.description}</div>
+
+  <div class="label">Betrag</div>
+  <div class="amount">${tx.amount.toFixed(2)} ${tx.currency}${p.invoiceAmountChf && tx.currency !== "CHF" ? ` (≈ CHF ${p.invoiceAmountChf.toFixed(2)})` : ""}</div>
+
+  ${p.matchReason ? `<div class="label">Abgleich-Methode</div><div class="value" style="font-size:13px;color:#555">${p.matchReason}</div>` : ""}
+
+  <div class="footer">
+    Erstellt von Belegmaster &middot; Blockbusterli &middot; ${new Date().toLocaleDateString("de-CH")} &middot; ${month}
+  </div>
+</body>
+</html>`;
+
+      const safeName = p.platformName.replace(/[^a-z0-9äöü_-]/gi, "_");
+      archive.append(html, { name: `belege/${safeName}_${tx.date.replace(/[./]/g, "-")}.html` });
+    }
+
+    // Also include a text README
+    const readme = [
+      `BELEGMASTER – Abgleich ${month}`,
+      "=".repeat(40),
+      "",
+      `Erstellt: ${new Date().toLocaleDateString("de-CH")}`,
+      `Abgeglichene Belege: ${matched.length}`,
+      "",
+      "Enthaltene Dateien:",
+      "  Abgleich_Zusammenfassung.csv  – Übersicht aller abgeglichenen Buchungen",
+      "  belege/                       – Einzelbelege pro Plattform (HTML)",
+      "",
+      "Für MOCO: CSV direkt importieren oder PDFs aus den HTML-Belegen drucken.",
+    ].join("\n");
+    archive.append(readme, { name: "README.txt" });
+
+    await archive.finalize();
   });
 
   return httpServer;
